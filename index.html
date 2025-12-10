@@ -3,129 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>汽车隐藏编码查询工具</title>
+    <title>汽车隐藏编码查询工具 - 2025优化版</title>
     <style>
-        body { font-family: "Microsoft YaHei", Arial, sans-serif; margin: 20px; background: #f9f9f9; color: #333; }
-        h1 { text-align: center; color: #2c3e50; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-        label { display: block; margin: 15px 0 5px; font-weight: bold; }
-        input, select { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
-        button { margin-top: 15px; padding: 12px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        body { font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif; margin: 20px; background: #f0f2f5; color: #333; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .desc { text-align: center; color: #7f8c8d; margin-bottom: 25px; font-size: 14px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; }
+        input, select { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; transition: border-color 0.3s; }
+        input:focus, select:focus { border-color: #3498db; outline: none; }
+        button { width: 100%; margin-top: 10px; padding: 14px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
         button:hover { background: #2980b9; }
-        #result { margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: 5px; white-space: pre-wrap; }
-        .tip { font-size: 14px; color: #666; margin-top: 10px; }
+        #result { margin-top: 25px; padding: 20px; background: #e8f7f5; border: 1px solid #bcece0; border-radius: 8px; display: none; }
+        #result strong { color: #16a085; font-size: 18px; display: block; margin-bottom: 10px; }
+        .tip { font-size: 13px; color: #7f8c8d; margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; line-height: 1.6; }
+        .highlight { color: #e74c3c; font-weight: bold; }
+        .copy-btn { margin-top: 10px; padding: 8px 16px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .copy-btn:hover { background: #219653; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>汽车隐藏编码查询工具</h1>
-        <p style="text-align:center; color:#666;">输入编码后点击“查询”，工具会自动解读（支持 VIN、DOT 玻璃/轮胎/灯、安全带、蓄电池等常见代码）</p>
-
-        <label for="code">输入编码（不区分大小写）：</label>
-        <input type="text" id="code" placeholder="例如：1HGCM82633A004352 或 DOT 2523 或 2523 等">
-
-        <label for="type">编码类型（可自动识别，也可手动选择）：</label>
-        <select id="type">
-            <option value="auto">自动识别</option>
-            <option value="vin">VIN（机架号，17位）</option>
-            <option value="dot_tire">DOT 轮胎号（后四位如 2523）</option>
-            <option value="dot_glass">DOT 玻璃/灯号（小圆点或年月码）</option>
-            <option value="engine">发动机号（带排量/功率版）</option>
-            <option value="trans">变速箱号</option>
-            <option value="battery">蓄电池号（年月+流水）</option>
-            <option value="belt">安全带号</option>
-            <option value="other">其他（通用解释）</option>
-        </select>
-
-        <button onclick="decode()">查询</button>
-
+        <p class="desc">输入编码后点击“查询”，自动解读 VIN、轮胎 DOT、玻璃/灯具、发动机号等（2025年最新版）</p>
+        
+        <div class="form-group">
+            <label for="code">输入编码（不区分大小写）：</label>
+            <input type="text" id="code" placeholder="例如：LZWABG0D0X1234567、3523、DOT 2523、发动机号等" onkeypress="handleEnter(event)">
+        </div>
+        <div class="form-group">
+            <label for="type">编码类型（建议默认）：</label>
+            <select id="type">
+                <option value="auto">🔍 自动识别 (推荐)</option>
+                <option value="vin">VIN 车架号 (17位)</option>
+                <option value="dot_tire">DOT 轮胎号 (4位数字)</option>
+                <option value="dot_glass">DOT 玻璃/灯具号</option>
+                <option value="engine">发动机/变速箱号</option>
+                <option value="battery">蓄电池号</option>
+                <option value="belt">安全带/气囊号</option>
+            </select>
+        </div>
+        <button onclick="decode()">立即查询</button>
+        
         <div id="result"></div>
-
+        
         <div class="tip">
-            <strong>常查代码优先显示：</strong> VIN → 轮胎DOT → 玻璃DOT → 发动机/变速箱 → 安全带/气囊 → 蓄电池/散热器 → 钣金冲压等<br>
-            提示：事故车/调表车常出现“部件日期晚于整车”或“零件号不匹配”。
+            <strong>💡 验车实用技巧：</strong><br>
+            1. <strong>比对原则：</strong> 玻璃、轮胎、安全带的生产日期应<span class="highlight">早于</span>整车出厂日期（B柱铭牌）。<br>
+            2. <strong>新车正常情况：</strong> 轮胎/玻璃日期通常比整车日期早1-6个月。<br>
+            3. <strong>警惕信号：</strong> 某部件日期明显晚于整车日期，多为事故更换件。<br>
+            4. <strong>查验顺序建议：</strong> 挡风玻璃 VIN → B柱铭牌 → 4条轮胎 → 全车玻璃 → 安全带底部标签 → 发动机号。
         </div>
     </div>
 
     <script>
+        function handleEnter(e) {
+            if (e.key === 'Enter') decode();
+        }
+
         function decode() {
             let input = document.getElementById('code').value.trim().toUpperCase();
             let type = document.getElementById('type').value;
-            let result = document.getElementById('result');
-            result.innerHTML = '';
+            let resultDiv = document.getElementById('result');
+
+            resultDiv.innerHTML = '';
+            resultDiv.style.display = 'none';
 
             if (!input) {
-                result.innerHTML = '<span style="color:red;">请先输入编码！</span>';
+                alert("请输入编码！");
                 return;
             }
 
-            // 自动识别
+            // 自动识别逻辑（更准确）
             if (type === 'auto') {
-                if (input.length === 17) type = 'vin';
-                else if (input.match(/^\d{4}$/) || input.match(/^\d{4}\s*$/)) type = 'dot_tire';
-                else if (input.includes('.') || input.match(/^\d{1,2}$/) || input.match(/DOT/i)) type = 'dot_glass';
-                else if (input.match(/^[A-Z]{2}\d{4}/) || input.match(/EA\d{3}/)) type = 'engine';
-                else if (input.match(/MQ\d{3}/) || input.match(/6R\d{2}/)) type = 'trans';
-                else type = 'other';
+                if (input.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/.test(input)) { // VIN 标准字符校验（不含I,O,Q）
+                    type = 'vin';
+                } else if (input.match(/^\d{4}$/) && parseInt(input.substring(0,2)) >= 1 && parseInt(input.substring(0,2)) <= 53) {
+                    type = 'dot_tire';
+                } else if (input.includes('DOT') || input.includes('.') || input.match(/^\d{1,2}$/) || input.match(/^\d+\s*\.+\s*\d+$/)) {
+                    type = 'dot_glass';
+                } else if (input.length >= 5 && /^[A-Z0-9]+$/.test(input)) {
+                    type = 'engine';
+                } else {
+                    type = 'other';
+                }
             }
 
-            let output = '<strong>查询结果：</strong><br>';
+            let output = '<strong>✅ 查询结果：</strong>';
+            let details = '';
 
             switch (type) {
-                case 'vin':
+                case 'vin': {
                     if (input.length !== 17) {
-                        output += 'VIN 必须是 17 位！';
+                        details = `<span style="color:red">错误：VIN 必须是 17 位字符，您输入了 ${input.length} 位。</span>`;
                         break;
                     }
+                    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(input)) {
+                        details = `<span style="color:red">VIN 包含非法字符（不允许 I、O、Q）。</span>`;
+                        break;
+                    }
+
                     let wmi = input.substring(0,3);
                     let vds = input.substring(3,9);
-                    let check = input[8];
-                    let year = input[9];
+                    let yearChar = input[9];
                     let plant = input[10];
                     let serial = input.substring(11);
 
-                    let yearMap = { A:2010, B:2011, C:2012, D:2013, E:2014, F:2015, G:2016, H:2017, J:2018, K:2019, L:2020, M:2021, N:2022, P:2023, R:2024, S:2025, T:2026, V:2027, W:2028, X:2029, Y:2030, 1:2001, 2:2002, 3:2003, 4:2004, 5:2005, 6:2006, 7:2007, 8:2008, 9:2009, 'A':1980, 'B':1981, 'C':1982, 'D':1983, 'E':1984, 'F':1985, 'G':1986, 'H':1987, 'J':1988, 'K':1989, 'L':1990, 'M':1991, 'N':1992, 'P':1993, 'R':1994, 'S':1995, 'T':1996, 'V':1997, 'W':1998, 'X':1999, 'Y':2000 };
-                    let y = yearMap[year] || '未知';
-                    output += `产地+厂家：${wmi}<br>车型/发动机/车身：${vds}<br>校验位：${check}<br>生产年份：${y} 年<br>装配厂：${plant}<br>流水号：${serial}`;
-                    break;
+                    // 2025年完整年份表（每30年循环）
+                    const yearMap = {
+                        '1': '2001 (或 1971)', '2': '2002 (或 1972)', '3': '2003 (或 1973)', '4': '2004 (或 1974)',
+                        '5': '2005 (或 1975)', '6': '2006 (或 1976)', '7': '2007 (或 1977)', '8': '2008 (或 1978)',
+                        '9': '2009 (或 1979)', 'A': '2010 (或 1980)', 'B': '2011 (或 1981)', 'C': '2012 (或 1982)',
+                        'D': '2013 (或 1983)', 'E': '2014 (或 1984)', 'F': '2015 (或 1985)', 'G': '2016 (或 1986)',
+                        'H': '2017 (或 1987)', 'J': '2018 (或 1988)', 'K': '2019 (或 1989)', 'L': '2020 (或 1990)',
+                        'M': '2021 (或 1991)', 'N': '2022 (或 1992)', 'P': '2023 (或 1993)', 'R': '2024 (或 1994)',
+                        'S': '2025 (或 1995)', 'T': '2026 (或 1996)', 'V': '2027 (或 1997)', 'W': '2028 (或 1998)',
+                        'X': '2029 (或 1999)', 'Y': '2030 (或 2000)'
+                    };
 
-                case 'dot_tire':
-                    if (input.length !== 4) {
-                        output += '轮胎 DOT 后四位应为 4 位数字（如 2523）';
+                    let yearStr = yearMap[yearChar] || '<span style="color:red">未知年份（VIN 第10位不应为 I、O、Q、Z、0）</span>';
+
+                    details = `
+                        <ul>
+                            <li><strong>生产年份 (第10位)：</strong> <span style="color:#2980b9;font-size:1.2em">${yearStr}</span></li>
+                            <li><strong>厂家代码 (前3位)：</strong> ${wmi}</li>
+                            <li><strong>装配厂代码 (第11位)：</strong> ${plant}</li>
+                            <li><strong>生产序列号 (后6位)：</strong> ${serial}</li>
+                        </ul>
+                        <div style="font-size:12px; color:#666; margin-top:8px;">
+                            注：VIN 年份通常指“年款”，实际出厂时间可能为该年份前半年或后半年。
+                        </div>
+                    `;
+                    break;
+                }
+
+                case 'dot_tire': {
+                    let cleanInput = input.replace(/[^0-9]/g, '');
+                    if (cleanInput.length > 4) cleanInput = cleanInput.slice(-4);
+                    if (!cleanInput.match(/^\d{4}$/)) {
+                        details = '无法识别。请直接输入轮胎侧面椭圆框内的4位数字（如 3523）。';
                         break;
                     }
-                    let week = parseInt(input.substring(0,2));
-                    let yr = parseInt(input.substring(2));
-                    let year = yr < 25 ? 2000 + yr : 1900 + yr; // 假设 00-24 为 2000-2024
-                    output += `生产时间：${year} 年 第 ${week} 周<br>（可上 NHTSA 官网用前 2-3 位查工厂）`;
-                    break;
+                    let week = parseInt(cleanInput.substring(0,2));
+                    let yr = parseInt(cleanInput.substring(2));
 
-                case 'dot_glass':
-                    output += '玻璃/灯 DOT 日期规则（小圆点法）：<br>数字 = 年份最后一位<br>点在左：月份 = 7 - 点数<br>点在右：月份 = 13 - 点数<br>例如：7 点在左 + 5 → 7-7=0（10月），5 → 2015 年 10 月';
+                    if (week < 1 || week > 53) {
+                        details = `<span style="color:red">周数 ${week} 不合理（应为 01-53）</span>`;
+                        break;
+                    }
+
+                    // 智能推断年份：优先最近30年
+                    let fullYear = (yr < 30) ? 2000 + yr : (yr < 50 ? 1900 + yr : 2000 + yr);
+
+                    details = `
+                        <ul>
+                            <li><strong>生产时间：</strong> <span style="color:#2980b9;font-size:1.2em">${fullYear} 年 第 ${week} 周</span></li>
+                            <li><strong>大概月份：</strong> ${Math.ceil(week * 7 / 30)} 月左右</li>
+                            <li><strong>编码解释：</strong> 前两位 ${cleanInput.substring(0,2)} 为周数，后两位 ${cleanInput.substring(2)} 为年份（自动推断为最近30年）。</li>
+                        </ul>
+                    `;
                     break;
+                }
+
+                case 'dot_glass': {
+                    details = `
+                        <strong>玻璃/车灯日期常用“黑点法”：</strong><br><br>
+                        1. <strong>只有一个数字（如 8）：</strong> 表示年份最后一位（2008/2018/2028）。<br><br>
+                        2. <strong>数字 + 小黑点：</strong>
+                        <ul>
+                            <li>黑点在数字左侧（左边）：月份 = 7 - 黑点数量（1-6月）</li>
+                            <li>黑点在数字右侧（右边）：月份 = 13 - 黑点数量（7-12月）</li>
+                        </ul>
+                        <em>示例：</em><br>
+                        • 8（左边3个点）→ 2018年4月<br>
+                        • 8（右边5个点）→ 2018年8月<br>
+                        • 5（左边1个点）→ 2025年6月<br><br>
+                        <strong>其他常见方式：</strong> 有些厂家直接用两位数字（如 2310 表示 2023年10月）。<br>
+                        建议拍照搜索玻璃厂家型号，或咨询4S店确认。
+                    `;
+                    break;
+                }
 
                 case 'engine':
-                    output += '发动机号通常包含：厂家 + 排量 + 功率版本 + 序列号<br>例如宝马 N 系、大众 EA 系可区分高/低功率版';
-                    break;
-
-                case 'trans':
-                    output += '变速箱号通常包含型号（如 MQ250、6R80）+ 生产周/年 + 序列号<br>用于判断是否翻新或索赔';
-                    break;
-
                 case 'battery':
-                    output += '蓄电池号通常为 年月 + 流水号<br>例如 2023 年 6 月生产 → 可能显示 2306XX<br>如果车辆表显 2024 年但电池 2022 年生产，要警惕调表';
-                    break;
-
                 case 'belt':
-                    output += '安全带号含 DOT + 工厂 + 年份<br>日期与整车出厂日期相差太大 → 可能更换过（事故车证据）';
-                    break;
-
-                default:
-                    output += '通用解释：将此编码与 VIN 出厂日期对比<br>正常：所有部件日期 ≤ VIN 年份 + 1 年<br>异常：某部件日期明显晚于整车 → 可能更换过（事故/翻新）';
-                    break;
+                default: {
+                    details = `
+                        <strong>通用零件（发动机、电池、安全带、气囊等）解码技巧：</strong><br><br>
+                        1. 直接找日期格式：DD/MM/YY、YYYYMMDD、YYMMDD 等。<br>
+                        2. 周/年组合：如 35/23 表示 2023年第35周。<br>
+                        3. 电池常见规律：编码第一位或最后几位包含年份（如 5 表示 2025）。<br>
+                        4. 安全带/气囊：通常有生产日期标签，日期应早于整车。<br><br>
+                        <strong>建议：</strong> 将零件号拍照后在淘宝/京东搜索，商品详情页通常有详细解码说明。
+                    `;
+                }
             }
 
-            result.innerHTML = output;
+            resultDiv.innerHTML = output + details + 
+                '<button class="copy-btn" onclick="copyResult()">复制结果</button>';
+            resultDiv.style.display = 'block';
+        }
+
+        function copyResult() {
+            const resultText = document.getElementById('result').innerText;
+            navigator.clipboard.writeText(resultText).then(() => {
+                alert('结果已复制到剪贴板！');
+            }).catch(() => {
+                alert('复制失败，请手动选中复制');
+            });
         }
     </script>
 </body>
