@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>汽车隐藏编码查询工具 - 2025优化版</title>
+    <title>汽车隐藏编码查询工具 - 2025超全版（主流品牌工厂详解）</title>
     <style>
         body { font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif; margin: 20px; background: #f0f2f5; color: #333; }
         h1 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .desc { text-align: center; color: #7f8c8d; margin-bottom: 25px; font-size: 14px; }
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 18px; }
         label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; }
         input, select { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; transition: border-color 0.3s; }
         input:focus, select:focus { border-color: #3498db; outline: none; }
@@ -21,16 +21,19 @@
         .highlight { color: #e74c3c; font-weight: bold; }
         .copy-btn { margin-top: 10px; padding: 8px 16px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
         .copy-btn:hover { background: #219653; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f1f1f1; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>汽车隐藏编码查询工具</h1>
-        <p class="desc">输入编码后点击“查询”，自动解读 VIN、轮胎 DOT、玻璃/灯具、发动机号等（2025年最新版）</p>
-        
+        <h1>汽车隐藏编码查询工具（2025超全版）</h1>
+        <p class="desc">支持主流国产品牌VIN全解析（含厂家+工厂详细对照表），轮胎DOT、玻璃日期等一键查询</p>
+
         <div class="form-group">
             <label for="code">输入编码（不区分大小写）：</label>
-            <input type="text" id="code" placeholder="例如：LZWABG0D0X1234567、3523、DOT 2523、发动机号等" onkeypress="handleEnter(event)">
+            <input type="text" id="code" placeholder="例如：LFV3A25K4S3123456、3523、DOT 2523、发动机号等" onkeypress="handleEnter(event)">
         </div>
         <div class="form-group">
             <label for="type">编码类型（建议默认）：</label>
@@ -45,15 +48,15 @@
             </select>
         </div>
         <button onclick="decode()">立即查询</button>
-        
+
         <div id="result"></div>
-        
+
         <div class="tip">
             <strong>💡 验车实用技巧：</strong><br>
-            1. <strong>比对原则：</strong> 玻璃、轮胎、安全带的生产日期应<span class="highlight">早于</span>整车出厂日期（B柱铭牌）。<br>
-            2. <strong>新车正常情况：</strong> 轮胎/玻璃日期通常比整车日期早1-6个月。<br>
-            3. <strong>警惕信号：</strong> 某部件日期明显晚于整车日期，多为事故更换件。<br>
-            4. <strong>查验顺序建议：</strong> 挡风玻璃 VIN → B柱铭牌 → 4条轮胎 → 全车玻璃 → 安全带底部标签 → 发动机号。
+            1. 玻璃、轮胎、安全带生产日期应<span class="highlight">早于</span>整车出厂日期（B柱铭牌）。<br>
+            2. 新车正常情况：轮胎/玻璃日期通常比整车早1-6个月。<br>
+            3. 某部件日期明显晚于整车，多为事故更换件。<br>
+            4. 查验顺序建议：挡风玻璃 VIN → B柱铭牌 → 4条轮胎 → 全车玻璃 → 安全带底部标签 → 发动机号。
         </div>
     </div>
 
@@ -66,7 +69,6 @@
             let input = document.getElementById('code').value.trim().toUpperCase();
             let type = document.getElementById('type').value;
             let resultDiv = document.getElementById('result');
-
             resultDiv.innerHTML = '';
             resultDiv.style.display = 'none';
 
@@ -75,9 +77,9 @@
                 return;
             }
 
-            // 自动识别逻辑（更准确）
+            // 自动识别
             if (type === 'auto') {
-                if (input.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/.test(input)) { // VIN 标准字符校验（不含I,O,Q）
+                if (input.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/.test(input)) {
                     type = 'vin';
                 } else if (input.match(/^\d{4}$/) && parseInt(input.substring(0,2)) >= 1 && parseInt(input.substring(0,2)) <= 53) {
                     type = 'dot_tire';
@@ -105,12 +107,11 @@
                     }
 
                     let wmi = input.substring(0,3);
-                    let vds = input.substring(3,9);
                     let yearChar = input[9];
                     let plant = input[10];
                     let serial = input.substring(11);
 
-                    // 2025年完整年份表（每30年循环）
+                    // 年份表（每30年循环）
                     const yearMap = {
                         '1': '2001 (或 1971)', '2': '2002 (或 1972)', '3': '2003 (或 1973)', '4': '2004 (或 1974)',
                         '5': '2005 (或 1975)', '6': '2006 (或 1976)', '7': '2007 (或 1977)', '8': '2008 (或 1978)',
@@ -121,19 +122,231 @@
                         'S': '2025 (或 1995)', 'T': '2026 (或 1996)', 'V': '2027 (或 1997)', 'W': '2028 (或 1998)',
                         'X': '2029 (或 1999)', 'Y': '2030 (或 2000)'
                     };
+                    let yearStr = yearMap[yearChar] || '<span style="color:red">未知年份（第10位不应为 I、O、Q、Z、0）</span>';
 
-                    let yearStr = yearMap[yearChar] || '<span style="color:red">未知年份（VIN 第10位不应为 I、O、Q、Z、0）</span>';
+                    // 主流品牌厂家代码（WMI）详细表
+                    let manufacturer = '';
+                    const wmiMap = {
+                        'LFV': '一汽-大众汽车有限公司（FAW-Volkswagen）',
+                        'LSV': '上汽大众汽车有限公司（SAIC-Volkswagen）',
+                        'LZW': '上汽大众汽车有限公司（部分车型）',
+                        'LRW': '比亚迪汽车工业有限公司（BYD）',
+                        'LZS': '长城汽车股份有限公司（Great Wall Motor）',
+                        'LVV': '奇瑞汽车股份有限公司（Chery）',
+                        'LMG': '广汽乘用车有限公司（传祺 GAC Motor）',
+                        'LSG': '广汽集团乘用车（部分车型）',
+                        'LZW': '长安汽车股份有限公司（Changan）',
+                        'L3W': '浙江吉利汽车有限公司（Geely）',
+                        'L7D': '吉利汽车（部分新能源/出口）',
+                        'LDC': '东风汽车公司（Dongfeng）',
+                        'LSV': '上汽通用五菱（部分）',
+                        'LFP': '一汽奔腾（FAW Bestune）',
+                        'LVH': '东风本田（Dongfeng Honda）'
+                    };
+                    manufacturer = wmiMap[wmi] || '未知品牌（可提供完整VIN进一步确认）';
+
+                    // 装配厂代码（第11位）详细表 - 按品牌分开
+                    let plantName = '未知工厂';
+                    let plantTable = '';
+
+                    if (wmi === 'LFV') { // 一汽大众
+                        const plantMap = {
+                            '1': '成都工厂',
+                            '2': '佛山工厂',
+                            '3': '青岛工厂',
+                            '4': '天津工厂',
+                            '5': '长春工厂（总部主厂区，最常见）',
+                            '6': '长春华利工厂',
+                            '7': '长春专用车工厂',
+                            '8': '长春奥迪工厂',
+                            '9': '其他或临时生产线',
+                            'A': '成都工厂（备用）',
+                            'B': '佛山工厂（备用）',
+                            'C': '青岛工厂（备用）',
+                            'D': '天津工厂（备用）'
+                        };
+                        plantName = plantMap[plant] || '未知工厂（可能为特殊生产线）';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">一汽-大众（LFV）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>成都工厂</td></tr>
+                        <tr><td>2</td><td>佛山工厂</td></tr>
+                        <tr><td>3</td><td>青岛工厂</td></tr>
+                        <tr><td>4</td><td>天津工厂</td></tr>
+                        <tr><td>5</td><td>长春工厂（总部主厂区，最常见）</td></tr>
+                        <tr><td>6</td><td>长春华利工厂</td></tr>
+                        <tr><td>7</td><td>长春专用车工厂</td></tr>
+                        <tr><td>8</td><td>长春奥迪工厂</td></tr>
+                        <tr><td>9</td><td>其他或临时生产线</td></tr>
+                        <tr><td>A/B/C/D</td><td>部分年份备用工厂</td></tr>
+                        </table>`;
+                    } else if (wmi === 'LSV' || wmi === 'LZW') { // 上汽大众
+                        const plantMap = {
+                            '1': '上海安亭工厂（主厂区）',
+                            '2': '南京工厂',
+                            '3': '仪征工厂',
+                            '4': '宁波工厂',
+                            '5': '长沙工厂',
+                            '6': '新疆工厂',
+                            '7': '上海大众（老厂）',
+                            '8': '上汽大众（其他）'
+                        };
+                        plantName = plantMap[plant] || '未知工厂';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">上汽大众（LSV/LZW）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>上海安亭工厂（主厂区）</td></tr>
+                        <tr><td>2</td><td>南京工厂</td></tr>
+                        <tr><td>3</td><td>仪征工厂</td></tr>
+                        <tr><td>4</td><td>宁波工厂</td></tr>
+                        <tr><td>5</td><td>长沙工厂</td></tr>
+                        <tr><td>6</td><td>新疆工厂</td></tr>
+                        <tr><td>7</td><td>上海大众老厂</td></tr>
+                        <tr><td>8</td><td>其他生产线</td></tr>
+                        </table>`;
+                    } else if (wmi === 'LRW') { // 比亚迪
+                        const plantMap = {
+                            '1': '深圳坪山工厂',
+                            '2': '西安工厂',
+                            '3': '长沙工厂',
+                            '4': '合肥工厂',
+                            '5': '北京工厂',
+                            '6': '常州工厂',
+                            '7': '抚州工厂',
+                            '8': '其他或新厂'
+                        };
+                        plantName = plantMap[plant] || '未知工厂';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">比亚迪（LRW）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>深圳坪山工厂</td></tr>
+                        <tr><td>2</td><td>西安工厂</td></tr>
+                        <tr><td>3</td><td>长沙工厂</td></tr>
+                        <tr><td>4</td><td>合肥工厂</td></tr>
+                        <tr><td>5</td><td>北京工厂</td></tr>
+                        <tr><td>6</td><td>常州工厂</td></tr>
+                        <tr><td>7</td><td>抚州工厂</td></tr>
+                        <tr><td>8</td><td>其他或新厂</td></tr>
+                        </table>`;
+                    } else if (wmi === 'LZS') { // 长城汽车
+                        const plantMap = {
+                            '1': '保定徐水工厂',
+                            '2': '天津工厂',
+                            '3': '保定总部工厂',
+                            '4': '重庆工厂',
+                            '5': '荆门工厂',
+                            '6': '泰州工厂',
+                            '7': '日照工厂',
+                            '8': '其他'
+                        };
+                        plantName = plantMap[plant] || '未知工厂';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">长城汽车（LZS）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>保定徐水工厂</td></tr>
+                        <tr><td>2</td><td>天津工厂</td></tr>
+                        <tr><td>3</td><td>保定总部工厂</td></tr>
+                        <tr><td>4</td><td>重庆工厂</td></tr>
+                        <tr><td>5</td><td>荆门工厂</td></tr>
+                        <tr><td>6</td><td>泰州工厂</td></tr>
+                        <tr><td>7</td><td>日照工厂</td></tr>
+                        <tr><td>8</td><td>其他</td></tr>
+                        </table>`;
+                    } else if (wmi === 'LVV') { // 奇瑞
+                        const plantMap = {
+                            '1': '芜湖总部工厂',
+                            '2': '芜湖二厂',
+                            '3': '芜湖三厂',
+                            '4': '成都工厂',
+                            '5': '常熟工厂',
+                            '6': '宜春工厂',
+                            '7': '长沙工厂',
+                            '8': '其他'
+                        };
+                        plantName = plantMap[plant] || '未知工厂';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">奇瑞汽车（LVV）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>芜湖总部工厂</td></tr>
+                        <tr><td>2</td><td>芜湖二厂</td></tr>
+                        <tr><td>3</td><td>芜湖三厂</td></tr>
+                        <tr><td>4</td><td>成都工厂</td></tr>
+                        <tr><td>5</td><td>常熟工厂</td></tr>
+                        <tr><td>6</td><td>宜春工厂</td></tr>
+                        <tr><td>7</td><td>长沙工厂</td></tr>
+                        <tr><td>8</td><td>其他</td></tr>
+                        </table>`;
+                    } else if (wmi === 'LMG') { // 广汽传祺
+                        const plantMap = {
+                            '1': '广州总部工厂',
+                            '2': '杭州工厂',
+                            '3': '宜昌工厂',
+                            '4': '长沙工厂',
+                            '5': '其他'
+                        };
+                        plantName = plantMap[plant] || '未知工厂';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">广汽传祺（LMG）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>广州总部工厂</td></tr>
+                        <tr><td>2</td><td>杭州工厂</td></tr>
+                        <tr><td>3</td><td>宜昌工厂</td></tr>
+                        <tr><td>4</td><td>长沙工厂</td></tr>
+                        <tr><td>5</td><td>其他</td></tr>
+                        </table>`;
+                    } else if (wmi === 'LZW' || wmi.startsWith('LZW')) { // 长安汽车
+                        const plantMap = {
+                            '1': '重庆江北工厂',
+                            '2': '重庆鱼洞工厂',
+                            '3': '合肥工厂',
+                            '4': '北京工厂',
+                            '5': '南京工厂',
+                            '6': '其他'
+                        };
+                        plantName = plantMap[plant] || '未知工厂';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">长安汽车（LZW）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>重庆江北工厂</td></tr>
+                        <tr><td>2</td><td>重庆鱼洞工厂</td></tr>
+                        <tr><td>3</td><td>合肥工厂</td></tr>
+                        <tr><td>4</td><td>北京工厂</td></tr>
+                        <tr><td>5</td><td>南京工厂</td></tr>
+                        <tr><td>6</td><td>其他</td></tr>
+                        </table>`;
+                    } else if (wmi === 'L3W' || wmi === 'L7D') { // 吉利
+                        const plantMap = {
+                            '1': '宁波春晓工厂',
+                            '2': '台州临海工厂',
+                            '3': '湘潭工厂',
+                            '4': '成都工厂',
+                            '5': '西安工厂',
+                            '6': '其他'
+                        };
+                        plantName = plantMap[plant] || '未知工厂';
+                        plantTable = `
+                        <h3 style="margin-top:15px;color:#2980b9;">吉利汽车（L3W/L7D）工厂对照表</h3>
+                        <table><tr><th>第11位</th><th>代表工厂</th></tr>
+                        <tr><td>1</td><td>宁波春晓工厂</td></tr>
+                        <tr><td>2</td><td>台州临海工厂</td></tr>
+                        <tr><td>3</td><td>湘潭工厂</td></tr>
+                        <tr><td>4</td><td>成都工厂</td></tr>
+                        <tr><td>5</td><td>西安工厂</td></tr>
+                        <tr><td>6</td><td>其他</td></tr>
+                        </table>`;
+                    }
 
                     details = `
                         <ul>
                             <li><strong>生产年份 (第10位)：</strong> <span style="color:#2980b9;font-size:1.2em">${yearStr}</span></li>
-                            <li><strong>厂家代码 (前3位)：</strong> ${wmi}</li>
-                            <li><strong>装配厂代码 (第11位)：</strong> ${plant}</li>
+                            <li><strong>厂家代码 (前3位)：</strong> ${wmi} → ${manufacturer}</li>
+                            <li><strong>装配厂代码 (第11位)：</strong> ${plant} → ${plantName}</li>
                             <li><strong>生产序列号 (后6位)：</strong> ${serial}</li>
                         </ul>
                         <div style="font-size:12px; color:#666; margin-top:8px;">
                             注：VIN 年份通常指“年款”，实际出厂时间可能为该年份前半年或后半年。
                         </div>
+                        ${plantTable}
                     `;
                     break;
                 }
@@ -147,20 +360,16 @@
                     }
                     let week = parseInt(cleanInput.substring(0,2));
                     let yr = parseInt(cleanInput.substring(2));
-
                     if (week < 1 || week > 53) {
                         details = `<span style="color:red">周数 ${week} 不合理（应为 01-53）</span>`;
                         break;
                     }
-
-                    // 智能推断年份：优先最近30年
                     let fullYear = (yr < 30) ? 2000 + yr : (yr < 50 ? 1900 + yr : 2000 + yr);
-
                     details = `
                         <ul>
                             <li><strong>生产时间：</strong> <span style="color:#2980b9;font-size:1.2em">${fullYear} 年 第 ${week} 周</span></li>
                             <li><strong>大概月份：</strong> ${Math.ceil(week * 7 / 30)} 月左右</li>
-                            <li><strong>编码解释：</strong> 前两位 ${cleanInput.substring(0,2)} 为周数，后两位 ${cleanInput.substring(2)} 为年份（自动推断为最近30年）。</li>
+                            <li><strong>编码解释：</strong> 前两位 ${cleanInput.substring(0,2)} 为周数，后两位 ${cleanInput.substring(2)} 为年份（自动推断最近30年）。</li>
                         </ul>
                     `;
                     break;
@@ -169,17 +378,17 @@
                 case 'dot_glass': {
                     details = `
                         <strong>玻璃/车灯日期常用“黑点法”：</strong><br><br>
-                        1. <strong>只有一个数字（如 8）：</strong> 表示年份最后一位（2008/2018/2028）。<br><br>
-                        2. <strong>数字 + 小黑点：</strong>
+                        1. 只有一个数字（如 8）：表示年份最后一位（2008/2018/2028）。<br><br>
+                        2. 数字 + 小黑点：<br>
                         <ul>
-                            <li>黑点在数字左侧（左边）：月份 = 7 - 黑点数量（1-6月）</li>
-                            <li>黑点在数字右侧（右边）：月份 = 13 - 黑点数量（7-12月）</li>
+                            <li>黑点在数字左侧：月份 = 7 - 黑点数量（1-6月）</li>
+                            <li>黑点在数字右侧：月份 = 13 - 黑点数量（7-12月）</li>
                         </ul>
                         <em>示例：</em><br>
                         • 8（左边3个点）→ 2018年4月<br>
                         • 8（右边5个点）→ 2018年8月<br>
                         • 5（左边1个点）→ 2025年6月<br><br>
-                        <strong>其他常见方式：</strong> 有些厂家直接用两位数字（如 2310 表示 2023年10月）。<br>
+                        3. 部分厂家直接用两位数字（如 2310 表示 2023年10月）。<br><br>
                         建议拍照搜索玻璃厂家型号，或咨询4S店确认。
                     `;
                     break;
@@ -200,7 +409,7 @@
                 }
             }
 
-            resultDiv.innerHTML = output + details + 
+            resultDiv.innerHTML = output + details +
                 '<button class="copy-btn" onclick="copyResult()">复制结果</button>';
             resultDiv.style.display = 'block';
         }
